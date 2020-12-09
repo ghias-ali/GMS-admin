@@ -1,17 +1,121 @@
-import React, { useContext, useState, useEffect, useRef, Component } from 'react';
-import { Table, Input, InputNumber, Popconfirm, Form, Button, Modal } from 'antd';
+import React, { useEffect, useState } from 'react';
 
+import {
+    Table, Input, Popconfirm, Form, Button, Modal, InputNumber,
+} from 'antd';
+import './style.css';
+let count = 0;
 const originData = [];
-for (let i = 0; i < 9; i++) {
+for (let i = 0; i < 5; i++) {
     originData.push({
         key: i.toString(),
         name: `Edrward ${i}`,
-        age: 32,
-        address: `London Park no. ${i}`,
+        employId: 32,
+        area: `London Park no. ${i}`,
+
     });
+    count++;
 }
+const RowDataView = ({ optp, visible, onCancel }) => {
 
+    return (
+        <div key={optp.key}>
+            <Modal
+                visible={visible}
+                title="User Data"
+                cancelText="Cancel"
+                onCancel={onCancel}
+                onOk={onCancel}
+            >
+                <div>
+                    {optp.name}
+                    <br />
+                    {optp.employId}
+                    <br />
+                    {optp.area}
 
+                </div>
+            </Modal>
+        </div>
+    );
+};
+const CollectionCreateForm = ({ visible, onCreate, onCancel }) => {
+    const [form] = Form.useForm();
+    return (
+        <Modal
+            visible={visible}
+            title="Add A user"
+            okText="Submit"
+            cancelText="Cancel"
+            onCancel={onCancel}
+            onOk={() => {
+                form
+                    .validateFields()
+                    .then((values) => {
+                        form.resetFields();
+                        onCreate(values);
+                        console.log({ values });
+                        console.log({ originData });
+                        originData.push({
+                            key: count,
+                            name: values.name,
+                            employId: values.employId,
+                            area: values.area
+                        })
+                    })
+                    .catch((info) => {
+                        console.log('Validate Failed:', info);
+                    });
+            }}
+        >
+            <Form
+                form={form}
+                layout="vertical"
+                name="Add A user"
+                initialValues={{
+                    modifier: 'public',
+                }}
+            >
+                <Form.Item
+                    name="name"
+                    label="Name"
+                    rules={[
+                        {
+                            required: true,
+                            message: 'Please input the Name Of user',
+                        },
+                    ]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    name="employId"
+                    label="Employ Id"
+                    rules={[
+                        {
+                            required: true,
+                            message: 'Please input the Employ-Id Of user',
+                        },
+                    ]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    name="area"
+                    label="Area"
+                    rules={[
+                        {
+                            required: true,
+                            message: 'Please input the Area Of user',
+                        },
+                    ]}
+                >
+                    <Input />
+                </Form.Item>
+            </Form>
+        </Modal>
+    );
+};
 const EditableCell = ({
     editing,
     dataIndex,
@@ -48,18 +152,14 @@ const EditableCell = ({
 };
 
 const EditableTable = () => {
+
+    const { Search } = Input;
     const [visible, setVisible] = useState(false);
+    const [visiblee, setVisiblee] = useState(false);
+    const [userData, setUserData] = useState(null);
 
-    const openModal = () => {
-        setVisible(true);
-    }
-
-    const handleOk = () => {
-        setVisible(false);
-    };
-
-
-    const handleCancel = () => {
+    const onCreate = (values) => {
+        console.log('Received values of form: ', values);
         setVisible(false);
     };
     const [form] = Form.useForm();
@@ -71,8 +171,8 @@ const EditableTable = () => {
     const edit = (record) => {
         form.setFieldsValue({
             name: '',
-            age: '',
-            address: '',
+            employId: '',
+            area: '',
             ...record,
         });
         setEditingKey(record.key);
@@ -80,18 +180,14 @@ const EditableTable = () => {
     const handleDelete = (key) => {
         setData(data.filter(d => d.key !== key));
     };
-
-
     const cancel = () => {
         setEditingKey('');
     };
-
     const save = async (key) => {
         try {
             const row = await form.validateFields();
             const newData = [...data];
             const index = newData.findIndex((item) => key === item.key);
-
             if (index > -1) {
                 const item = newData[index];
                 newData.splice(index, 1, { ...item, ...row });
@@ -106,23 +202,22 @@ const EditableTable = () => {
             console.log('Validate Failed:', errInfo);
         }
     };
-
     const columns = [
         {
-            title: 'name',
+            title: 'Name',
             dataIndex: 'name',
             width: '25%',
             editable: true,
         },
         {
-            title: 'age',
-            dataIndex: 'age',
+            title: 'Employ-Id',
+            dataIndex: 'employId',
             width: '15%',
             editable: true,
         },
         {
-            title: 'address',
-            dataIndex: 'address',
+            title: 'Area',
+            dataIndex: 'area',
             width: '40%',
             editable: true,
         },
@@ -163,6 +258,22 @@ const EditableTable = () => {
                     </Popconfirm>
                 ) : null,
         },
+        {
+            title: 'operation',
+            dataIndex: 'operation',
+            render: (_, record) =>
+                data.length >= 1 ? (
+                    <a
+                        href="javascript:;"
+                        onClick={() => handleOnClickRow(record)}
+                        style={{
+                            marginRight: 8,
+                        }}
+                    >
+                        Details
+                    </a>
+                ) : null,
+        },
 
     ];
     const mergedColumns = columns.map((col) => {
@@ -174,27 +285,35 @@ const EditableTable = () => {
             ...col,
             onCell: (record) => ({
                 record,
-                inputType: col.dataIndex === 'age' ? 'number' : 'text',
+                inputType: col.dataIndex === 'employId' ? 'number' : 'text',
                 dataIndex: col.dataIndex,
                 title: col.title,
                 editing: isEditing(record),
             }),
         };
     });
+
+    const handleOnClickRow = (record) => {
+        setUserData(record);
+        setVisiblee(true);
+    }
     return (
         <div>
-            <modal />
-            <Button
-                onClick={openModal}
-                type="primary"
-                style={{
-                    marginBottom: 5,
-                    marginTop: 10,
-                    marginLeft: 1020,
-                }}
-            >
-                Add a row
+            <div className='users-top-bar'>
+                <Search placeholder="input search" enterButton
+                    style={{
+                        width: 300,
+
+                    }} />
+                <Button
+                    onClick={() => {
+                        setVisible(true);
+                    }}
+                    type="primary"
+                >
+                    Add a row
         </Button>
+            </div>
 
             <Form form={form} component={false}>
                 <Table
@@ -212,17 +331,21 @@ const EditableTable = () => {
                     }}
                 />
             </Form>
-            <Modal
-                title="Basic Modal"
+            <CollectionCreateForm
                 visible={visible}
-                onOk={handleOk}
-                onCancel={handleCancel}
-            >
-                <p>Some contents...</p>
-                <p>Some contents...</p>
-                <p>Some contents...</p>
-            </Modal>
-        </div>
+                onCreate={onCreate}
+                onCancel={() => {
+                    setVisible(false);
+                }}
+            />
+            <RowDataView
+                optp={userData ? userData : {}}
+                visible={visiblee}
+                onCancel={() => {
+                    setVisiblee(false);
+                }}
+            />
+        </div >
     );
 };
 export default EditableTable;
