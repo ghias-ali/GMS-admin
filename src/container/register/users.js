@@ -312,7 +312,7 @@ const EditableTable = () => {
                     type="primary"
                 >
                     Add a row
-        </Button>
+                </Button>
             </div>
 
             <Form form={form} component={false}>

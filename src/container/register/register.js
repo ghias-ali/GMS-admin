@@ -9,60 +9,45 @@ import { client } from '../../config';
 import { Provider, useSelector } from 'react-redux';
 import { store } from '../../redux/store';
 
-function Login() {
+function Register() {
 
-    const [loginSuccess, setLoginSuccess] = useState(false);
-    const [registerButton, setRegisterButton] = useState(false);
+    const [signIn, setsignIn] = useState(false);
 
-    const onFinish = values => {
+    const onFinishRegister = values => {
         console.log('Success:', values);
-        client.authenticate({
+        const { email, password } = values;
+        client.service('/users').create({
             strategy: 'local',
-            email: values.email,
-            password: values.password,
-        }).then((res) => {
-            console.log({ res })
-        }).catch(e => {
-            // Show login page (potentially with `e.message`)
-            console.error('Authentication error', e);
-        });
-        setLoginSuccess(true);
+            email,
+            password
+        }).then(res => console.log(res)).catch(e => console.log({ e }));
 
     };
 
-    const onFinishFailed = errorInfo => {
+    const onFinishFailedRegister = errorInfo => {
         console.log('Failed:', errorInfo);
     };
     const onclicked = () => {
-        setRegisterButton(true);
+        setsignIn(true);
     };
-
-
-
-
-    if (registerButton) {
+    if (signIn) {
         return <Redirect
-            to={{ pathname: "/register" }}
+            to={{ pathname: "/" }}
         />
     }
 
-    if (loginSuccess) {
-        return <Redirect
-            to={{ pathname: "/dashboard" }}
-        />
-    }
 
     return (
         <div>
             <div className="cont">
-                <div >
+                <div>
                     <Form
                         initialValues={{
                             remember: true,
                         }}
-                        onFinish={onFinish}
-                        onFinishFailed={onFinishFailed}>
-                        <h2>Welcome back,</h2>
+                        onFinish={onFinishRegister}
+                        onFinishFailed={onFinishFailedRegister}>
+                        <h2>Register A user</h2>
                         <label>
                             <span>Username</span>
                             <Form.Item
@@ -91,26 +76,15 @@ function Login() {
                             </Form.Item>
                         </label>
                         <p className="forgot-pass">Forgot password?</p>
-                        <Button style={{ borderRadius: 10 }} htmlType="submit" className="submit">Sign In</Button>
+                        <Button style={{ borderRadius: 10 }} htmlType="submit" className="submit">Register</Button>
                     </Form>
-                    <Button onClick={onclicked} style={{ borderRadius: 10 }} htmlType="submit" className="submit">Register</Button>
+                    <Button onClick={onclicked} style={{ borderRadius: 10 }} htmlType="submit" className="submit">Sign In</Button>
 
                 </div>
-                <div className="sub-cont">
-                    <div className="img">
-                    </div>
-                </div>
-            </div>
-
-
-
-
+            </div >
         </div>
-
-
-
 
     );
 }
 
-export default Login;
+export default Register;

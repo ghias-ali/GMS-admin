@@ -6,13 +6,18 @@ import {
   Switch,
   Route,
 } from "react-router-dom";
+import { Provider, useSelector } from 'react-redux';
+import { store } from './redux/store';
 import Login from './container/register/login';
+import Register from './container/register/register';
+
 
 function kLink() {
   mq('inTopic', {})
 }
 
 function App() {
+  const isAuthenticated = useSelector(state => state.authReducer.isLoggedIn);
 
 
 
@@ -20,12 +25,12 @@ function App() {
     <Router>
       <div className="App">
         <Switch>
-          <Route exact path="/">
-            <Login />
-          </Route>
-          <Route path="/dashboard">
-            <SiderDemo />
-          </Route>
+            
+        <Route path="/dashboard" component={SiderDemo} />
+        <Route exact path="/register" component={Register} />
+        <Route exact path="/" component={Login} />
+
+
         </Switch>
 
       </div>
@@ -33,4 +38,11 @@ function App() {
   );
 }
 
-export default App;
+const FinallApp = () => {
+  return (
+    <Provider store={store}>
+      <App />
+    </Provider>
+  );
+}
+export default FinallApp;
