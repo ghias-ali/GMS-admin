@@ -6,13 +6,16 @@ import {
     Redirect
 } from "react-router-dom";
 import { client } from '../../config';
-import { Provider, useSelector } from 'react-redux';
+import { Provider, useSelector, useDispatch } from 'react-redux';
 import { store } from '../../redux/store';
+import { setLoginState } from '../../redux/actions';
 
 function Login() {
 
+    const dispatch = useDispatch();
     const [loginSuccess, setLoginSuccess] = useState(false);
     const [registerButton, setRegisterButton] = useState(false);
+    const isAuthenticated = useSelector(state => state.authReducer.isLoggedIn);
 
     const onFinish = values => {
         console.log('Success:', values);
@@ -22,6 +25,8 @@ function Login() {
             password: values.password,
         }).then((res) => {
             console.log({ res })
+            dispatch(setLoginState(true));
+
         }).catch(e => {
             // Show login page (potentially with `e.message`)
             console.error('Authentication error', e);
@@ -46,12 +51,20 @@ function Login() {
         />
     }
 
-    if (loginSuccess) {
+    if (isAuthenticated) {
+        console.log({ isAuthenticated });
         return <Redirect
             to={{ pathname: "/dashboard" }}
         />
     }
 
+
+    if (loginSuccess) {
+        return <Redirect
+            to={{ pathname: "/dashboard" }}
+        />
+    }
+    console.log({ isAuthenticated });
     return (
         <div>
             <div className="cont">
@@ -93,8 +106,7 @@ function Login() {
                         <p className="forgot-pass">Forgot password?</p>
                         <Button style={{ borderRadius: 10 }} htmlType="submit" className="submit">Sign In</Button>
                     </Form>
-                    <Button onClick={onclicked} style={{ borderRadius: 10 }} htmlType="submit" className="submit">Register</Button>
-
+                    <p>If you dont have account <a onClick={onclicked}>REGISTER</a> first!</p>
                 </div>
                 <div className="sub-cont">
                     <div className="img">

@@ -8,6 +8,8 @@ import {
     UserOutlined,
 } from '@ant-design/icons';
 import EditableTable from './users';
+import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -25,6 +27,13 @@ class SiderDemo extends React.Component {
 
     render() {
         const { collapsed, panelId } = this.state;
+        const { isAuthenticated } = this.props;
+        console.log({ isAuthenticated });
+        if (!isAuthenticated) {
+            return (
+                <Redirect to={{ pathname: "/" }} />
+            )
+        }
         return (
             <Layout style={{ minHeight: '100vh' }}>
                 <Sider collapsible collapsed={collapsed} onCollapse={this.onCollapse}>
@@ -70,4 +79,8 @@ class SiderDemo extends React.Component {
         );
     }
 }
-export default SiderDemo;
+
+const mapStateToProps = state => {
+    return { isAuthenticated: state.authReducer.isLoggedIn };
+}
+export default connect(mapStateToProps, {})(SiderDemo);

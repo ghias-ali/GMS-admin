@@ -9,9 +9,10 @@ import { client } from '../../config';
 import { Provider, useSelector } from 'react-redux';
 import { store } from '../../redux/store';
 
-function Register() {
+function Register(props) {
 
     const [signIn, setsignIn] = useState(false);
+
 
     const onFinishRegister = values => {
         console.log('Success:', values);
@@ -20,7 +21,11 @@ function Register() {
             strategy: 'local',
             email,
             password
-        }).then(res => console.log(res)).catch(e => console.log({ e }));
+        }).then(res => {
+            props.history.push('/')
+        }
+        ).catch(e => console.log({ e }));
+
 
     };
 
@@ -35,6 +40,7 @@ function Register() {
             to={{ pathname: "/" }}
         />
     }
+
 
 
     return (
@@ -78,7 +84,7 @@ function Register() {
                         <p className="forgot-pass">Forgot password?</p>
                         <Button style={{ borderRadius: 10 }} htmlType="submit" className="submit">Register</Button>
                     </Form>
-                    <Button onClick={onclicked} style={{ borderRadius: 10 }} htmlType="submit" className="submit">Sign In</Button>
+                    <p>If you have account than <a onClick={onclicked}>Login</a>!</p>
 
                 </div>
             </div >
