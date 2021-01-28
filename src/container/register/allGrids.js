@@ -10,7 +10,7 @@ import './style.css';
 const RowDataView = ({ optp, visible, onCancel }) => {
 
     return (
-        <div key={optp.key}>
+        <div key={optp._id}>
             <Modal
                 visible={visible}
                 title="User Data"
@@ -19,9 +19,11 @@ const RowDataView = ({ optp, visible, onCancel }) => {
                 onOk={onCancel}
             >
                 <div>
-                    <p>Name: <span>{optp.name}</span></p>
-                    <p>Employee ID: <span>{optp.employeeId}</span></p>
-                    <p>Employee Area: <span>{optp.area}</span></p>
+                    <p>Name: <span>{optp.gridName}</span></p>
+                    <p>Grid ID: <span>{optp.gridId}</span></p>
+                    <p>Grid Area: <span>{optp.gridArea}</span></p>
+                    <p>Status: <span>{optp.currentStatus}</span></p>
+
 
                 </div>
             </Modal>
@@ -43,15 +45,13 @@ const CollectionCreateForm = ({ visible, onCreate, onCancel }) => {
                     .then((values) => {
                         form.resetFields();
                         const info = {
-                            email: values.email,
-                            password: values.password,
-                            name: values.name,
-                            role: 1,
-                            employeeId: uuidv4(),
-                            area: values.area,
+                            gridName: values.gridName,
+                            gridId: uuidv4(),
+                            gridArea: values.gridArea,
+                            currentStatus: 0,// currently grid is off
                         }
                         console.log({ info });
-                        client.service('users').create(info).then((res) => {
+                        client.service('grids').create(info).then((res) => {
                             console.log(res);
                             onCreate(res);
 
@@ -67,50 +67,26 @@ const CollectionCreateForm = ({ visible, onCreate, onCancel }) => {
             <Form
                 form={form}
                 layout="vertical"
-                name="Add A user"
+                name="Add A Grid"
                 initialValues={{
                     modifier: 'public',
                 }}
             >
                 <Form.Item
-                    name="name"
-                    label="Name"
+                    name="gridName"
+                    label="Grid Name"
                     rules={[
                         {
                             required: true,
-                            message: 'Please input the Name Of Employee',
+                            message: 'Please input the Name Of Grid',
                         },
                     ]}
                 >
                     <Input />
                 </Form.Item>
                 <Form.Item
-                    name="email"
-                    label="Email"
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Please input the Email Of Employee',
-                        },
-                    ]}
-                >
-                    <Input />
-                </Form.Item>
-                <Form.Item
-                    name="password"
-                    label="Password"
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Please input the Password Of Employee',
-                        },
-                    ]}
-                >
-                    <Input />
-                </Form.Item>
-                <Form.Item
-                    name="area"
-                    label="Area"
+                    name="gridArea"
+                    label="Grid Area"
                     rules={[
                         {
                             required: true,
@@ -159,7 +135,7 @@ const EditableCell = ({
     );
 };
 
-const EditableTable = () => {
+const AllGrids = () => {
 
     const { Search } = Input;
     const [visible, setVisible] = useState(false);
@@ -170,11 +146,9 @@ const EditableTable = () => {
 
 
     useEffect(() => {
-        client.service('users').find().then(res => {
+        client.service('grids').find().then(res => {
 
-            const employeeData = res.data.filter(d => {
-                return d.role !== 0
-            })
+            const employeeData = res.data;
             setData(employeeData)
         }).catch(err => {
             message.error(err.message);
@@ -193,16 +167,16 @@ const EditableTable = () => {
 
     const edit = (record) => {
         form.setFieldsValue({
-            name: '',
-            employeeId: '',
-            area: '',
+            gridName: '',
+            gridId: '',
+            gridArea: '',
             ...record,
         });
         setEditingKey(record._id);
     };
     const handleDelete = (_id) => {
         console.log({ _id });
-        client.service('users').remove(_id);
+        client.service('grids').remove(_id);
         setData(data.filter(d => d._id !== _id));
     };
     const cancel = () => {
@@ -216,7 +190,7 @@ const EditableTable = () => {
             if (index > -1) {
                 const item = newData[index];
                 console.log({ row });
-                client.service('users').patch(_id, row).then((res) => {
+                client.service('grids').patch(_id, row).then((res) => {
                     console.log(res);
                 }
                 ).catch(e => console.log({ e }));
@@ -234,20 +208,20 @@ const EditableTable = () => {
     };
     const columns = [
         {
-            title: 'Name',
-            dataIndex: 'name',
+            title: 'Grid Name',
+            dataIndex: 'gridName',
             width: '25%',
             editable: true,
         },
         {
-            title: 'Employee Id',
-            dataIndex: 'employeeId',
+            title: 'Grid Id',
+            dataIndex: 'gridId',
             width: '15%',
             editable: false,
         },
         {
             title: 'Area',
-            dataIndex: 'area',
+            dataIndex: 'gridArea',
             width: '40%',
             editable: true,
         },
@@ -314,7 +288,7 @@ const EditableTable = () => {
             ...col,
             onCell: (record) => ({
                 record,
-                inputType: col.dataIndex === 'employeeId' ? 'number' : 'text',
+                inputType: col.dataIndex === 'gridId' ? 'number' : 'text',
                 dataIndex: col.dataIndex,
                 title: col.title,
                 editing: isEditing(record),
@@ -377,4 +351,4 @@ const EditableTable = () => {
         </div >
     );
 };
-export default EditableTable;
+export default AllGrids;

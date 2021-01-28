@@ -8,6 +8,7 @@ import {
 import { client } from '../../config';
 import { Provider, useSelector } from 'react-redux';
 import { store } from '../../redux/store';
+import { v4 as uuidv4 } from 'uuid';
 
 function Register(props) {
 
@@ -16,12 +17,16 @@ function Register(props) {
 
     const onFinishRegister = values => {
         console.log('Success:', values);
-        const { email, password } = values;
-        client.service('/users').create({
-            strategy: 'local',
-            email,
-            password
-        }).then(res => {
+        const info = {
+            email: values.email,
+            password: values.password,
+            name: values.name,
+            role: 0,
+            employeeId: uuidv4(),
+        }
+        console.log({ info });
+        client.service('users').create(info).then((res) => {
+            console.log(res);
             props.history.push('/')
         }
         ).catch(e => console.log({ e }));
@@ -55,9 +60,22 @@ function Register(props) {
                         onFinishFailed={onFinishFailedRegister}>
                         <h2>Register A user</h2>
                         <label>
-                            <span>Username</span>
+                            <span>Email</span>
                             <Form.Item
                                 name="email"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please input your Email!',
+                                    },
+                                ]}>
+                                <input />
+                            </Form.Item>
+                        </label>
+                        <label>
+                            <span>UserName</span>
+                            <Form.Item
+                                name="name"
                                 rules={[
                                     {
                                         required: true,

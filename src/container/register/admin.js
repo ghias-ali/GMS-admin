@@ -8,32 +8,60 @@ import {
     UserOutlined,
 } from '@ant-design/icons';
 import EditableTable from './users';
-import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
+import AllGrids from './allGrids';
+import AdminData from './adminData';
+import RequestedGrids from './requestedGrids'
+import { Provider, useSelector, useDispatch, connect } from 'react-redux';
+import { store } from '../../redux/store';
+import { setLoginState } from '../../redux/actions';
+import {
+    BrowserRouter as Router,
+    Redirect
+} from "react-router-dom";
+import { client } from '../../config';
+import "antd/dist/antd.css";
+
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 
+
+
 class SiderDemo extends React.Component {
     state = {
         collapsed: false,
-        panelId: 1
+        panelId: 1,
     };
 
     onCollapse = collapsed => {
         console.log(collapsed);
         this.setState({ collapsed });
     };
+    onLogoutClicked() {
+        console.log("clicked");
+        client.logout().then((res) => {
+            this.props.setLoginState(false);
+            this.props.history.push("/");
+        }).catch(e => {
+            // Show login page (potentially with `e.message`)
+            console.error('Authentication error', e);
+        });
+    };
+
+
 
     render() {
+
         const { collapsed, panelId } = this.state;
         const { isAuthenticated } = this.props;
-        console.log({ isAuthenticated });
+        console.log(isAuthenticated);
+
         if (!isAuthenticated) {
             return (
                 <Redirect to={{ pathname: "/" }} />
             )
         }
+
         return (
             <Layout style={{ minHeight: '100vh' }}>
                 <Sider collapsible collapsed={collapsed} onCollapse={this.onCollapse}>
@@ -52,7 +80,10 @@ class SiderDemo extends React.Component {
                             <Menu.Item key="3" onClick={() => this.setState({ panelId: 3 })}>All Grids</Menu.Item>
                             <Menu.Item key="4" onClick={() => this.setState({ panelId: 4 })}>Requestes</Menu.Item>
                         </SubMenu>
-                        <Menu.Item key="5" icon={<LogoutOutlined />}>
+                        <Menu.Item key="5" icon={< TeamOutlined />} onClick={() => this.setState({ panelId: 5 })} >
+                            Admin Profile
+                        </Menu.Item>
+                        <Menu.Item key="6" onClick={() => this.onLogoutClicked()} icon={<LogoutOutlined />}>
                             Logout
                         </Menu.Item>
                     </Menu>
@@ -67,10 +98,13 @@ class SiderDemo extends React.Component {
                             panelId === 2 && <EditableTable />
                         }
                         {
-                            panelId === 3 && <span>panel3</span>
+                            panelId === 3 && <AllGrids />
                         }
                         {
-                            panelId === 4 && <span>panel4</span>
+                            panelId === 4 && <RequestedGrids />
+                        }
+                        {
+                            panelId === 5 && <AdminData />
                         }
                     </Content>
                     <Footer style={{ textAlign: 'center' }}>GMS-Admin ©2020 Created by GMS</Footer>
@@ -83,4 +117,4 @@ class SiderDemo extends React.Component {
 const mapStateToProps = state => {
     return { isAuthenticated: state.authReducer.isLoggedIn };
 }
-export default connect(mapStateToProps, {})(SiderDemo);
+export default connect(mapStateToProps, { setLoginState })(SiderDemo);

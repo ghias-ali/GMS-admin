@@ -5,6 +5,8 @@ import {
     BrowserRouter as Router,
     Redirect
 } from "react-router-dom";
+import "antd/dist/antd.css";
+
 import { client } from '../../config';
 import { Provider, useSelector, useDispatch } from 'react-redux';
 import { store } from '../../redux/store';
@@ -20,13 +22,12 @@ function Login() {
     const onFinish = values => {
         console.log('Success:', values);
         client.authenticate({
-            strategy: 'local',
+            strategy: "local",
             email: values.email,
             password: values.password,
         }).then((res) => {
             console.log({ res })
             dispatch(setLoginState(true));
-
         }).catch(e => {
             // Show login page (potentially with `e.message`)
             console.error('Authentication error', e);
@@ -77,7 +78,7 @@ function Login() {
                         onFinishFailed={onFinishFailed}>
                         <h2>Welcome back,</h2>
                         <label>
-                            <span>Username</span>
+                            <span>Email</span>
                             <Form.Item
                                 name="email"
                                 rules={[

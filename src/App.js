@@ -23,6 +23,8 @@ function kLink() {
 function App(props) {
   const dispatch = useDispatch();
   const isLoaded = useSelector(state => state.authReducer.isLoaded);
+  const isAuthenticated = useSelector(state => state.authReducer.isLoggedIn);
+
   useEffect(() => {
     client.reAuthenticate().then(res => {
       dispatch(setLoginState(true));
