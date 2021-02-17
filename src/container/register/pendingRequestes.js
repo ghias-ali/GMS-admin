@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircleFilled } from '@ant-design/icons';
+import { CheckCircleFilled, CloseSquareFilled } from '@ant-design/icons';
 import {
-    Table, Input, Popconfirm, Form, message, Modal, InputNumber, Button
+    Table, Input, Popconfirm, Form, message, Modal, InputNumber, Button, Pagination
 } from 'antd';
 import { client } from '../../config';
 
@@ -85,14 +85,16 @@ const PendingRequestes = () => {
     const [visiblee, setVisiblee] = useState(false);
     const [userData, setUserData] = useState(null);
     const [refresh, setRefresh] = useState(true);
-
-
+    const [total, setTotal] = useState(0);
+    const [skip, setSkip] = useState(0);
 
     const [form] = Form.useForm();
     const [data, setData] = useState(null);
 
 
     const handleDelete = (_id) => {
+        client.service('pending-requestes').remove(_id);
+
         setData(data.filter(d => d._id !== _id));
     };
     const handleIconClick = (_id) => {
@@ -110,20 +112,37 @@ const PendingRequestes = () => {
 
 
     };
+    const handleIconCross = (_id) => {
+        console.log('cliked');
+        const row = { status: 2 }
+        client.service('pending-requestes').patch(_id, row).then((res) => {
+            console.log(res);
+            client.service('rejected-requestes').create(res).then((res) => {
+                console.log(res);
+                setData(data.filter(d => d._id !== res._id));
+            }
+            ).catch(e => console.log({ e }));
+        }
+        ).catch(e => console.log({ e }));
+
+
+    };
 
     useEffect(() => {
-        client.service('pending-requestes').find().then(res => {
-
-            const employeeData = res.data.filter(d => {
-                return d.status === 0
-            })
-            setData(employeeData)
+        client.service('pending-requestes').find({
+            query: {
+                $skip: skip,
+                status: 0
+            }
+        }).then(res => {
+            setData(res.data);
             setRefresh(false);
+            setTotal(res.total);
 
         }).catch(err => {
             message.error(err.message);
         })
-    }, [refresh]);
+    }, [refresh, skip]);
     const columns = [
         {
             title: ' Grid Name',
@@ -138,7 +157,7 @@ const PendingRequestes = () => {
         {
             title: 'Grid-Area',
             dataIndex: ['gridInfo', 'gridArea'],
-            width: '40%',
+            width: '25%',
         },
         {
             title: 'Accept Request',
@@ -149,6 +168,15 @@ const PendingRequestes = () => {
                     <CheckCircleFilled style={{ color: 'green', height: '100%', width: '100%', fontSize: '24px', }} onClick={() => handleIconClick(record._id)} />
                 ) : null,
         },
+        {
+            title: 'Reject Request',
+            dataIndex: 'operation',
+            width: '20%',
+            render: (_, record) =>
+                data.length >= 1 ? (
+                    <CloseSquareFilled style={{ color: 'red', height: '100%', width: '100%', fontSize: '24px', }} onClick={() => handleIconCross(record._id)} />
+                ) : null,
+        },
 
         {
             title: 'operation',
@@ -156,7 +184,7 @@ const PendingRequestes = () => {
             render: (_, record) =>
                 data.length >= 1 ? (
                     <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record._id)}>
-                        <a>Delete</a>
+                        <a style={{ color: 'red' }}>Delete</a>
                     </Popconfirm>
                 ) : null,
         },
@@ -204,6 +232,7 @@ const PendingRequestes = () => {
             <Button
                 onClick={() => {
                     setRefresh(true);
+                    setSkip(0);
                 }}
                 type="primary"
                 style={{ marginRight: '10px' }}>
@@ -219,7 +248,12 @@ const PendingRequestes = () => {
                     dataSource={data}
                     columns={mergedColumns}
                     rowClassName="editable-row"
-
+                    pagination={{
+                        total,
+                        onChange: (e) => {
+                            setSkip((e - 1) * 10)
+                        }
+                    }}
                 />
             </Form>
 
@@ -228,6 +262,7 @@ const PendingRequestes = () => {
                 visible={visiblee}
                 onCancel={() => {
                     setVisiblee(false);
+
                 }}
             />
         </div >

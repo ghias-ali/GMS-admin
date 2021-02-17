@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import {
-    Table, Input, Popconfirm, Form, message, Modal, InputNumber, Button,
+    Table, Input, Popconfirm, Form, message, Modal, InputNumber, Button, pagination
 } from 'antd';
 import './style.css';
 import "antd/dist/antd.css";
@@ -74,6 +74,10 @@ const AcceptedRequestes = () => {
     const [visiblee, setVisiblee] = useState(false);
     const [userData, setUserData] = useState(null);
     const [refresh, setRefresh] = useState(true);
+    const [skip, setSkip] = useState(0);
+    const [total, setTotal] = useState(0);
+
+
 
 
     const [form] = Form.useForm();
@@ -81,18 +85,21 @@ const AcceptedRequestes = () => {
 
     useEffect(() => {
         if (refresh) {
-            client.service('accepted-requestes').find().then(res => {
-                const employeeData = res.data;
-                setData(employeeData);
+            client.service('accepted-requestes').find({
+                query: {
+                    $skip: skip,
+                }
+            }).then(res => {
+                setData(res.data);
                 setRefresh(false);
-                console.log(res);
+                setTotal(res.total);
             }).catch(err => {
                 message.error(err.message);
             })
         }
 
-    }, [refresh]);
-    const handleDelete = (_id) => {
+    }, [refresh, skip]);
+    const handleRevoke = (_id) => {
 
         const row = { status: 0 }
         client.service('pending-requestes').patch(_id, row).then((res) => {
@@ -116,21 +123,21 @@ const AcceptedRequestes = () => {
         {
             title: 'Grid-Area',
             dataIndex: ['gridInfo', 'gridArea'],
-            width: '40%',
+            width: '25%',
         },
         {
             title: 'Accepted By',
             dataIndex: ['acceptedBy', 'name'],
-            width: '40%',
+            width: '30%',
         },
         {
             title: 'Revoke Accesss',
             dataIndex: 'operation',
-            width: '20%',
+            width: '25%',
             render: (_, record) =>
                 data.length >= 1 ? (
-                    <Popconfirm title="Sure to Revoke?" icon={<QuestionCircleOutlined style={{ color: 'red' }} />} onConfirm={() => handleDelete(record._id)}>
-                        <a>Revoke Access</a>
+                    <Popconfirm title="Sure to Revoke?" icon={<QuestionCircleOutlined style={{ color: 'red' }} />} onConfirm={() => handleRevoke(record._id)}>
+                        <a style={{ color: 'red' }}>Revoke Access</a>
                     </Popconfirm>
                 ) : null,
         },
@@ -177,6 +184,7 @@ const AcceptedRequestes = () => {
             <Button
                 onClick={() => {
                     setRefresh(true);
+                    setSkip(0);
                 }}
                 type="primary"
                 style={{ marginRight: '10px' }}>
@@ -193,6 +201,12 @@ const AcceptedRequestes = () => {
                     dataSource={data}
                     columns={mergedColumns}
                     rowClassName="editable-row"
+                    pagination={{
+                        total,
+                        onChange: (e) => {
+                            setSkip((e - 1) * 10)
+                        }
+                    }}
 
                 />
             </Form>
