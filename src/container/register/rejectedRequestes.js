@@ -1,22 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import {
-    Table, Input, Popconfirm, Form, Button, Modal, InputNumber,
+    Table, Input, Popconfirm, Form, message, Modal, InputNumber, Button,
 } from 'antd';
 import './style.css';
 import "antd/dist/antd.css";
-let count = 0;
-const originData = [];
-for (let i = 0; i < 6; i++) {
-    originData.push({
-        key: i.toString(),
-        gridName: `Edrward ${i}`,
-        emplyeeName: `Ghias ${i}`,
-        gridArea: `London Park no. ${i}`,
+import { client } from '../../config';
 
-    });
-    count++;
-}
+
 const RowDataView = ({ optp, visible, onCancel }) => {
 
     return (
@@ -82,43 +73,70 @@ const RejectedRequestes = () => {
 
     const [visiblee, setVisiblee] = useState(false);
     const [userData, setUserData] = useState(null);
+    const [refresh, setRefresh] = useState(true);
+    const [skip, setSkip] = useState(0);
+
 
 
     const [form] = Form.useForm();
-    const [data, setData] = useState(originData);
+    const [data, setData] = useState(null);
 
+    useEffect(() => {
+        if (refresh) {
+            client.service('rejected-requestes').find({
+                query: {
+                    status: 2,
+                }
+            }).then(res => {
+                const employeeData = res.data;
+                setData(employeeData);
+                setRefresh(false);
+                console.log(res);
+            }).catch(err => {
+                message.error(err.message);
+            })
+        }
 
-    const handleDelete = (key) => {
-        setData(data.filter(d => d.key !== key));
+    }, [refresh]);
+    const handleDelete = (_id) => {
+
+        const row = { status: 0 }
+        client.service('pending-requestes').patch(_id, row).then((res) => {
+            console.log(res);
+            client.service('rejected-requestes').remove(_id);
+            setData(data.filter(d => d._id !== _id));
+        }
+        ).catch(e => console.log({ e }));
     };
     const columns = [
         {
-            title: ' SR no',
-            dataIndex: 'key',
-            width: '5%',
-        },
-        {
             title: ' Grid Name',
-            dataIndex: 'gridName',
+            dataIndex: ['gridInfo', 'gridName'],
             width: '15%',
         },
         {
             title: 'Employee Name',
-            dataIndex: 'emplyeeName',
+            dataIndex: ['userInfo', 'name'],
             width: '15%',
         },
         {
             title: 'Grid-Area',
-            dataIndex: 'gridArea',
+            dataIndex: ['gridInfo', 'gridArea'],
             width: '40%',
         },
         {
-            title: 'operation',
+            title: 'Rejected By',
+            dataIndex: ['rejectedBy', 'name'],
+            width: '40%',
+        },
+        {
+            title: 'Delete',
             dataIndex: 'operation',
+            width: '20%',
             render: (_, record) =>
                 data.length >= 1 ? (
-                    <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.key)}>
-                        <a>Delete</a>
+                    <Popconfirm title="Sure to Delete?" icon={<QuestionCircleOutlined style={{ color: 'red' }} />} onConfirm={() => handleDelete(record._id)}>
+                        <a style={{ color: 'red' }}>Delete</a>
                     </Popconfirm>
                 ) : null,
         },
@@ -162,6 +180,13 @@ const RejectedRequestes = () => {
     }
     return (
         <div>
+            <Button
+                onClick={() => {
+                    setRefresh(true);
+                }}
+                type="primary"
+                style={{ marginRight: '10px' }}>
+                Refresh</Button>
 
             <Form form={form} component={false}>
                 <Table

@@ -73,14 +73,12 @@ class SiderDemo extends React.Component {
                         <Menu.Item key="1" icon={< ApiOutlined />} onClick={() => this.setState({ panelId: 1 })} >
                             Dashboard
                         </Menu.Item>
-                        <Menu.Item key="2" icon={<UserOutlined />} onClick={() => this.setState({ panelId: 2 })} >
+                        <Menu.Item key="2" icon={< TeamOutlined />} onClick={() => this.setState({ panelId: 2 })} >
                             User
                         </Menu.Item>
-                        <SubMenu key="sub1" icon={<AlertOutlined />} title="Grids">
-                            <Menu.Item key="3" onClick={() => this.setState({ panelId: 3 })}>All Grids</Menu.Item>
-                            <Menu.Item key="4" onClick={() => this.setState({ panelId: 4 })}>Requestes</Menu.Item>
-                        </SubMenu>
-                        <Menu.Item key="5" icon={< TeamOutlined />} onClick={() => this.setState({ panelId: 5 })} >
+                        <Menu.Item key="3" onClick={() => this.setState({ panelId: 3 })}>All Grids</Menu.Item>
+                        <Menu.Item key="4" onClick={() => this.setState({ panelId: 4 })}>Requestes</Menu.Item>
+                        <Menu.Item key="5" icon={<UserOutlined />} onClick={() => this.setState({ panelId: 5 })} >
                             Admin Profile
                         </Menu.Item>
                         <Menu.Item key="6" onClick={() => this.onLogoutClicked()} icon={<LogoutOutlined />}>
