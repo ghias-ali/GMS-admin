@@ -7,18 +7,7 @@ import { client } from '../../config';
 
 import './style.css';
 import "antd/dist/antd.css";
-let count = 0;
-const originData = [];
-for (let i = 0; i < 6; i++) {
-    originData.push({
-        key: i.toString(),
-        gridName: `Edrward ${i}`,
-        emplyeeName: `Ghias ${i}`,
-        gridArea: `London Park no. ${i}`,
 
-    });
-    count++;
-}
 const RowDataView = ({ optp, visible, onCancel }) => {
 
     return (
