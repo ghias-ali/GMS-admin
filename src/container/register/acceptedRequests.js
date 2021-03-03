@@ -90,6 +90,7 @@ const AcceptedRequestes = () => {
                     $skip: skip,
                 }
             }).then(res => {
+                console.log({res})
                 setData(res.data);
                 setRefresh(false);
                 setTotal(res.total);

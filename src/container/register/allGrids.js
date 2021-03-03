@@ -35,7 +35,7 @@ const CollectionCreateForm = ({ visible, onCreate, onCancel }) => {
     return (
         <Modal
             visible={visible}
-            title="Add A user"
+            title="Add A Grid"
             okText="Submit"
             cancelText="Cancel"
             onCancel={onCancel}
