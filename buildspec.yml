@@ -10,7 +10,7 @@ phases:
       - echo Logging in to Amazon ECR...
       - aws --version
 #      - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
-      - docker login -u AWS -p $(aws ecr get-login-password --region us-west-2) 727576026797.dkr.ecr.us-west-2.amazonaws.com
+      - $(aws ecr get-login --no-include-email --region us-west-2)
       - REPOSITORY_URI=727576026797.dkr.ecr.us-west-2.amazonaws.com/gms
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
