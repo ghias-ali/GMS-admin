@@ -37,7 +37,7 @@ function App(props) {
   }, []);
 
   return (
-    <Router>
+    <Router basename="/admin">
       <div className="App">
 
         {isLoaded ?

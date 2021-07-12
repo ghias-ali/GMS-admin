@@ -1,0 +1,20 @@
+version: '3.7'
+
+services:
+  # ust:
+  #   container_name: user_store
+  #   image: keevi:ust:v1.0.0
+  #   volumes:
+  #     - '.:/app'
+  #     - '/app/node_modules'
+  #   ports:
+  #     - 3001:80
+  gms-admin:
+    container_name: gms-admin
+    #depends_on: ust
+    image: gms-v1.0
+    volumes:
+      - '.:/app'
+      - '/app/node_modules'
+    ports:
+      - 4000:80
