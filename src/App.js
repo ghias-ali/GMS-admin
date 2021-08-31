@@ -8,22 +8,18 @@ import {
   Route,
   Redirect
 } from "react-router-dom";
-import { Provider, useDispatch, useSelector } from 'react-redux';
-import { store } from './redux/store';
+ import { store } from './redux/store';
 import Login from './container/register/login';
 import Register from './container/register/register';
 import { client } from './config';
 import { setLoginState, setIsLoaded } from './redux/actions';
+import { useDispatch,useSelector,Provider} from "react-redux"
 
 
-function kLink() {
-  mq('inTopic', {})
-}
 
 function App(props) {
   const dispatch = useDispatch();
   const isLoaded = useSelector(state => state.authReducer.isLoaded);
-  const isAuthenticated = useSelector(state => state.authReducer.isLoggedIn);
 
   useEffect(() => {
     client.reAuthenticate().then(res => {
@@ -34,6 +30,10 @@ function App(props) {
     }).catch((e) => {
       dispatch(setIsLoaded(true));
     });
+    const gridsService = client.service('grids');
+    gridsService.on('patched', function (resp) {
+      console.log({resp});
+    })
   }, []);
 
   return (

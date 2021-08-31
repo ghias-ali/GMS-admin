@@ -3,7 +3,7 @@ import feathers from '@feathersjs/feathers';
 import socketio from '@feathersjs/socketio-client';
 import auth from '@feathersjs/authentication-client';
 
-const apiUrl = 'http://api.shafaytex.org'
+const apiUrl = 'http://api.mumairriaz.com'
 
 const socket = io(apiUrl, {
     transports: ['websocket'],
