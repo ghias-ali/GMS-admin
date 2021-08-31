@@ -9,7 +9,6 @@ import "antd/dist/antd.css";
 
 import { client } from '../../config';
 import { Provider, useSelector, useDispatch } from 'react-redux';
-import { store } from '../../redux/store';
 import { setLoginState } from '../../redux/actions';
 
 function Login() {
